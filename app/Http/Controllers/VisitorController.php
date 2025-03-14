@@ -9,6 +9,7 @@ use App\Models\Visitor;
 class VisitorController extends Controller
 {
     // get
+    // return list of date, month(string), year, amount (jumlah pengunjung di hari itu)
     public function getMonthlyVisitors(Request $request)
     {
         $month = $request->query('month');
