@@ -13,14 +13,24 @@ class AuthController extends Controller
         //TODO REGISTER
         //TODO 1: BUAT FITUR VERIFIKASI EMAIL
         //TODO 2: BUAT REGEX PASSWORD
-        //TODO 3: TAMBAH KOLOM FIRSTNAME DAN LASTNAME KE DATABASE
+        //TODO 3 (DONE): TAMBAH KOLOM FIRSTNAME DAN LASTNAME KE DATABASE - DONE
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
+            'username' => 'required',
+            'first_name' => 'required',
+            'last_name' => 'required',
             'email' => 'required|email|unique:users',
-            'password' => 'required',
+            'password' => 'required|min:8|confirmed',
             'confirm_password' => 'required|same:password',
         ]);
+        $existingUser = User::where('username',$request->name)->orWhere('email', $request->email)->first();
 
+        if($existingUser){
+            return response()->json([
+                'status' => 400,
+                'message' => 'Registration failed',
+                'errors' => 'User with this username or email already exists'
+            ], 400);
+        }
         if($validator->fails()){
             return response()->json([
                 'status' => 400,
@@ -29,18 +39,12 @@ class AuthController extends Controller
             ], 400);
         }
 
-        $existingUser = User::where('name',$request->name)->orWhere('email', $request->email)->first();
 
-        if($existingUser){
-            return response()->json([
-                'status' => 400,
-                'message' => 'Registration failed',
-                'errors' => 'User with this name or email already exists'
-            ], 400);
-        }
 
         $newUser = User::create([
-            'name' => $request->name,
+            'username' => $request->username,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
             'email' => $request->email,
             "password" => bcrypt($request->password)
         ]);
@@ -49,7 +53,7 @@ class AuthController extends Controller
         $response['status'] = 200;
         $response['message'] = 'Registration successful';
         $data = [];
-        $data['user'] = $newUser->name;
+        $data['user'] = $newUser->username;
         $data['email'] = $newUser->email;
         $data['token'] = $newUser->createToken('MyApp')->accessToken;
         $response['data'] = $data;
