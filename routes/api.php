@@ -16,3 +16,4 @@ Route::patch('/visitors', [VisitorController::class, 'updateVisitors']);
 //route untuk auth
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
