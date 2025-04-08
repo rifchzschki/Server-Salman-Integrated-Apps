@@ -53,59 +53,79 @@ class AuthController extends Controller
             'email' => $request->email,
             "password" => bcrypt($request->password)
         ]);
+
         $token = $newUser->createToken('MyApp')->accessToken;
         return response()->json([
             'status' => 200,
             'message' => 'Registration successful',
             'data' => [
                 'user' => $newUser->username,
-                'email' => $newUser->email
+                'email' => $newUser->email,
+                'access_token' => $token
             ]
-        ], 200)->cookie('jwt_token', $token, 60, '/', null, false, true);
+        ], 200);
     }
 
     public function login(Request $request){
+        $request->headers->set('Accept', 'application/json');
         $request->validate([
             'username' => 'required',
             'password' => 'required'
         ]);
-        if(Auth::attempt(["username" => $request->username, "password" => $request->password])){
-            $user = Auth::user();
-            $token = $user->createToken('MyApp')->accessToken;
 
+        $user = User::where('username', $request->username)->first();
+
+        if (!$user || !\Hash::check($request->password, $user->password)) {
             return response()->json([
-                'status' => 200,
-                'message' => 'Login successful',
-                'data' => [
-                    'username' => $user->username,
-                    'email' => $user->email
-                ]
-            ], 200)->cookie('jwt_token', $token, 60, '/', null, false, true);
-
+                'status' => 400,
+                'message' => 'Login failed',
+                'data' => null
+            ], 400);
         }
 
-        return response()->json([
-            'status' => 400,
-            'message' => 'Login failed',
-            'data' => null
-        ], 400);
-    }
-
-    public function logout(Request $request){
-        $token = $request->cookie('jwt_token');
-
-        if (!$token) {
-            return response()->json([
-                'status' => 401,
-                'message' => 'Unauthorized - No active session'
-            ], 401);
-        }
-
-        $request->user()->token()->delete();
+        $token = $user->createToken('MyApp')->accessToken;
 
         return response()->json([
             'status' => 200,
-            'message' => 'Logout successful'
-        ], 200)->cookie('jwt_token', '', -1);
+            'message' => 'Login successful',
+            'data' => [
+                'username' => $user->username,
+                'email' => $user->email,
+                'access_token' => $token
+            ]
+        ], 200);
     }
+
+    public function logout(Request $request){
+        $user = $request->user();
+
+        if ($user) {
+            $user->token()->revoke();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Logout successful'
+            ], 200);
+        }
+
+        return response()->json([
+            'status' => 401,
+            'message' => 'Unauthorized - No active session'
+        ], 401);
+    }
+
+    public function me(Request $request)
+    {
+        return response()->json([
+            'status' => 200,
+            'message' => 'User profile fetched successfully',
+            'data' => [
+                'username' => Auth::user()->username,
+                'first_name' => Auth::user()->first_name,
+                'last_name' => Auth::user()->last_name,
+                'email' => Auth::user()->email,
+            ]
+        ]);
+    }
+
 }
