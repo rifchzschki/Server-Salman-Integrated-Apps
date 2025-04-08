@@ -7,16 +7,13 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-
+use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Str;
 class AuthController extends Controller
 {
-    public function register(Request $request){
-        //TODO REGISTER
-        //TODO 1: BUAT FITUR VERIFIKASI EMAIL
-        //TODO 2 (DONE): BUAT REGEX PASSWORD - DONE
-        //TODO 3 (DONE): TAMBAH KOLOM FIRSTNAME DAN LASTNAME KE DATABASE - DONE
+    public function register(Request $request)
+    {
         $validator = Validator::make($request->all(), [
-            'username' => 'required',
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|email|unique:users',
@@ -27,85 +24,110 @@ class AuthController extends Controller
             ],
             'confirm_password' => 'required|same:password',
         ]);
-        $existingUser = User::where('username',$request->username)->orWhere('email', $request->email)->first();
 
-        if($existingUser){
-            return response()->json([
-                'status' => 400,
-                'message' => 'Registration failed',
-                'errors' => 'User with this username or email already exists'
-            ], 400);
-        }
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
                 'status' => 400,
                 'message' => 'Registration failed',
                 'errors' => $validator->errors()->all()
             ], 400);
         }
-
-
-
         $newUser = User::create([
-            'username' => $request->username,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
-            "password" => bcrypt($request->password)
+            'password' => bcrypt($request->password)
         ]);
+
         $token = $newUser->createToken('MyApp')->accessToken;
+
         return response()->json([
             'status' => 200,
             'message' => 'Registration successful',
             'data' => [
-                'user' => $newUser->username,
-                'email' => $newUser->email
+                'email' => $newUser->email,
+                'access_token' => $token
             ]
-        ], 200)->cookie('jwt_token', $token, 60, '/', null, false, true);
+        ], 200);
     }
 
-    public function login(Request $request){
+    public function login(Request $request)
+    {
         $request->validate([
-            'username' => 'required',
+            'email' => 'required|email',
             'password' => 'required'
         ]);
-        if(Auth::attempt(["username" => $request->username, "password" => $request->password])){
-            $user = Auth::user();
-            $token = $user->createToken('MyApp')->accessToken;
 
+        $user = User::where('email', $request->input('email'))->first();
+
+        if (!$user || !\Hash::check($request->input('password'), $user->password)) {
             return response()->json([
-                'status' => 200,
-                'message' => 'Login successful',
-                'data' => [
-                    'username' => $user->username,
-                    'email' => $user->email
-                ]
-            ], 200)->cookie('jwt_token', $token, 60, '/', null, false, true);
-
+                'status' => 400,
+                'message' => 'Login failed',
+                'data' => null
+            ], 400);
         }
+
+        $token = $user->createToken('MyApp')->accessToken;
 
         return response()->json([
-            'status' => 400,
-            'message' => 'Login failed',
-            'data' => null
-        ], 400);
+            'status' => 200,
+            'message' => 'Login successful',
+            'data' => [
+                'email' => $user->email,
+                'access_token' => $token
+            ]
+        ]);
+    }
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->stateless()->redirect();
     }
 
-    public function logout(Request $request){
-        $token = $request->cookie('jwt_token');
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->stateless()->user();
+            $user = User::firstOrCreate(
+                ['email' => $googleUser->getEmail()],
+                [
+                    'first_name' => $googleUser->user['given_name'] ?? '',
+                    'last_name' => $googleUser->user['family_name'] ?? '',
+                    'email' => $googleUser->getEmail(),
+                    'password' => bcrypt(Str::random(16)),
+                ]
+            );
 
-        if (!$token) {
-            return response()->json([
-                'status' => 401,
-                'message' => 'Unauthorized - No active session'
-            ], 401);
+            $token = $user->createToken('MyApp')->accessToken;
+
+            return redirect("http://localhost:3000/auth/callback?token={$token}&email={$user->email}");
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Google login failed', 'details' => $e->getMessage()], 500);
         }
+    }
 
-        $request->user()->token()->delete();
+
+    public function logout(Request $request)
+    {
+        auth()->logout();
 
         return response()->json([
             'status' => 200,
             'message' => 'Logout successful'
-        ], 200)->cookie('jwt_token', '', -1);
+        ]);
+    }
+
+    public function me(Request $request)
+    {
+        return response()->json([
+            'status' => 200,
+            'message' => 'User profile fetched successfully',
+            'data' => [
+                'first_name' => Auth::user()->first_name,
+                'last_name' => Auth::user()->last_name,
+                'email' => Auth::user()->email,
+            ]
+        ]);
     }
 }
