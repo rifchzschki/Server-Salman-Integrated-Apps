@@ -7,7 +7,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-
+use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Str;
 class AuthController extends Controller
 {
     public function register(Request $request)
@@ -78,6 +79,34 @@ class AuthController extends Controller
             ]
         ]);
     }
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->stateless()->redirect();
+    }
+
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->stateless()->user();
+            $user = User::firstOrCreate(
+                ['email' => $googleUser->getEmail()],
+                [
+                    'first_name' => $googleUser->user['given_name'] ?? '',
+                    'last_name' => $googleUser->user['family_name'] ?? '',
+                    'email' => $googleUser->getEmail(),
+                    'password' => bcrypt(Str::random(16)),
+                ]
+            );
+
+            $token = $user->createToken('MyApp')->accessToken;
+
+            return redirect("http://localhost:3000/auth/callback?token={$token}&email={$user->email}");
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Google login failed', 'details' => $e->getMessage()], 500);
+        }
+    }
+
 
     public function logout(Request $request)
     {
