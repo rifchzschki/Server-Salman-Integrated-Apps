@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\DiscussionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,12 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:api')->post('/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:api')->get('/me', [App\Http\Controllers\API\AuthController::class, 'me']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/discussions', [DiscussionController::class, 'index']);
+    Route::post('/discussions', [DiscussionController::class, 'store']);
+    Route::put('/discussions/{id}', [DiscussionController::class, 'update']);
+    Route::delete('/discussions/{id}', [DiscussionController::class, 'destroy']);
+});
 Route::get('/auth/google', [AuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 Route::post('/news', [NewsController::class, 'store']);
