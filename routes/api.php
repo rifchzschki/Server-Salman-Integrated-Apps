@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\NewsController;
 use Illuminate\Http\Request;
@@ -24,3 +25,5 @@ Route::get('/news', [NewsController::class, 'index']);
 Route::get('/news/{id}', [NewsController::class, 'show']);
 Route::patch('/news/{id}', [NewsController::class, 'update']);
 Route::delete('/news/{id}', [NewsController::class, 'destroy']);
+Route::get('/get-finance', [FinanceController::class, 'getMonthlyFinance']);
+Route::post('/update-finance', [FinanceController::class, 'updateMonthlyFinance']);
