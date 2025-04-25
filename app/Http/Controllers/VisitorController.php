@@ -12,11 +12,26 @@ class VisitorController extends Controller
     // return list of date, month(string), year, amount (jumlah pengunjung di hari itu)
     public function getMonthlyVisitors(Request $request)
     {
+        $indonesiaMonth = [
+            'Januari' => 'January',
+            'Februari' => 'February',
+            'Maret' => 'March',
+            'April' => 'April',
+            'Mei' => 'May',
+            'Juni' => 'June',
+            'Juli' => 'July',
+            'Agustus' => 'August',
+            'September' => 'September',
+            'Oktober' => 'October',
+            'November' => 'November',
+            'Desember' => 'December',
+          ];
         $month = $request->query('month');
+        $englishMonth = strtr($month, $indonesiaMonth);
         $year = $request->query('year');
 
         $visitors = Visitor::whereYear('date', $year)
-            ->whereMonth('date', date('m', strtotime($month)))
+            ->whereMonth('date', date('m', strtotime($englishMonth)))
             ->get()
             ->map(function ($visitor) {
                 return [
