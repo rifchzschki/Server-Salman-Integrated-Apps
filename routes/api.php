@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\EventsController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\NewsController;
@@ -33,3 +34,5 @@ Route::get('/get-finance', [FinanceController::class, 'getMonthlyFinance']);
 Route::post('/update-finance', [FinanceController::class, 'updateMonthlyFinance']);
 
 Route::apiResource('/quotes', QuotesController::class);
+
+Route::apiResource('/events', EventsController::class);
