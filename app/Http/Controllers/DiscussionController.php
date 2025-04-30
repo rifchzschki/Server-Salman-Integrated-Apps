@@ -12,7 +12,11 @@ class DiscussionController extends Controller
      */
     public function index()
     {
-        return Discussion::with('user')->orderByDesc('created_at')->get();
+        return response()->json([
+            'status' => 200,
+            'message' => 'Discussions retrieved successfully.',
+            'data' => Discussion::with('user')->orderByDesc('created_at')->get()
+        ]);
     }
 
     /**
@@ -35,7 +39,11 @@ class DiscussionController extends Controller
             'content' => $request->content,
         ]);
 
-        return response()->json($discussion, 201);
+        return response()->json([
+            'status' => 201,
+            'message' => 'Discussion created successfully.',
+            'data' => $discussion->load('user')
+        ], 201);
     }
 
     /**
@@ -59,16 +67,19 @@ class DiscussionController extends Controller
      */
     public function update(Request $request, Discussion $discussion)
     {
-        $discussion = Discussion::findOrFail($id);
-
         if ($request->user()->id !== $discussion->user_id && $request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['status' => 403, 'message' => 'Unauthorized'], 403);
         }
-
-        $discussion->content = $request->content;
-        $discussion->save();
-
-        return response()->json($discussion);
+    
+        $request->validate(['content' => 'required|string']);
+    
+        $discussion->update(['content' => $request->content]);
+    
+        return response()->json([
+            'status' => 200,
+            'message' => 'Discussion updated successfully.',
+            'data' => $discussion
+        ]);
     }
 
     /**
@@ -76,13 +87,15 @@ class DiscussionController extends Controller
      */
     public function destroy(Discussion $discussion)
     {
-        $discussion = Discussion::findOrFail($id);
-
         if ($request->user()->id !== $discussion->user_id && $request->user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['status' => 403, 'message' => 'Unauthorized'], 403);
         }
-
+    
         $discussion->delete();
-        return response()->json(['message' => 'Deleted']);
+    
+        return response()->json([
+            'status' => 200,
+            'message' => 'Discussion deleted successfully.'
+        ]);
     }
 }
