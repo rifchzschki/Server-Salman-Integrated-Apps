@@ -12,10 +12,19 @@ class DiscussionController extends Controller
      */
     public function index()
     {
+        $discussions = Discussion::with('user')->orderByDesc('created_at')->get();
+        $formatted = $discussions->map(function ($discussion) {
+            return [
+                'id' => $discussion->id,
+                'content' => $discussion->content,
+                'author' => $discussion->user->first_name ?? 'Unknown',
+                'created_at' => $discussion->created_at->toDateTimeString(),
+            ];
+        });
         return response()->json([
             'status' => 200,
             'message' => 'Discussions retrieved successfully.',
-            'data' => Discussion::with('user')->orderByDesc('created_at')->get()
+            'data' => $formatted
         ]);
     }
 

@@ -19,13 +19,15 @@ Route::post('/visitors', [VisitorController::class, 'addVisitors']);
 Route::patch('/visitors', [VisitorController::class, 'updateVisitors']);
 
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::middleware('auth:api')->post('/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:api')->get('/me', [App\Http\Controllers\API\AuthController::class, 'me']);
-Route::get('/discussions', [DiscussionController::class, 'index']);
-Route::post('/discussions', [DiscussionController::class, 'store']);
-Route::put('/discussions/{id}', [DiscussionController::class, 'update']);
-Route::delete('/discussions/{id}', [DiscussionController::class, 'destroy']);
+Route::middleware('auth:api')->group(function () {
+    Route::get('/discussions', [DiscussionController::class, 'index']);
+    Route::post('/discussions', [DiscussionController::class, 'store']);
+    Route::put('/discussions/{discussion}', [DiscussionController::class, 'update']);
+    Route::delete('/discussions/{discussion}', [DiscussionController::class, 'destroy']);
+});
 Route::get('/auth/google', [AuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
