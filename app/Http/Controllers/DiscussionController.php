@@ -94,7 +94,7 @@ class DiscussionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Discussion $discussion)
+    public function destroy(Discussion $discussion, Request $request)
     {
         if ($request->user()->id !== $discussion->user_id && $request->user()->role !== 'admin') {
             return response()->json(['status' => 403, 'message' => 'Unauthorized'], 403);
