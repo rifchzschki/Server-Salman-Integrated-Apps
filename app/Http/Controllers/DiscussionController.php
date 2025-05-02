@@ -12,13 +12,19 @@ class DiscussionController extends Controller
      */
     public function index()
     {
-        $discussions = Discussion::with('user')->orderByDesc('created_at')->get();
+        $discussions = Discussion::with('user')->orderByDesc('updated_at')->get();
         $formatted = $discussions->map(function ($discussion) {
             return [
                 'id' => $discussion->id,
                 'content' => $discussion->content,
-                'author' => $discussion->user->first_name ?? 'Unknown',
-                'created_at' => $discussion->created_at->toDateTimeString(),
+                'author' => trim(($discussion->user->first_name ?? '') . ' ' . ($discussion->user->last_name ?? '')) ?: 'Unknown',
+                'author_id' => $discussion->user->id ?? null,
+                'created_at' => $discussion->created_at
+                    ? $discussion->created_at->timezone('Asia/Jakarta')->format('Y-m-d H:i:s')
+                    : null,
+                'updated_at' => $discussion->updated_at
+                    ? $discussion->updated_at->timezone('Asia/Jakarta')->format('Y-m-d H:i:s')
+                    : null,
             ];
         });
         return response()->json([
