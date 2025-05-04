@@ -54,30 +54,41 @@ class NewsController extends Controller
 
     public function update(Request $request, $id)
     {
+        $rules = [
+            'title' => 'required|string|max:255',
+            'author' => 'required',
+            'link' => 'required|string',
+            'description' => 'nullable|string',
+            'poster' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'cover' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ];
+
+        $validatedData = $request->validate($rules);
+
         $news = News::findOrFail($id);
 
-        if ($request->has('title')) {
-            $news->title = $request->input('title');
-        }
-        if ($request->has('author')) {
-            $news->author = json_encode($request->input('author'));
-        }
+        // Parse author from JSON string
+        $authors = json_decode($request->input('author'), true);
+
+        $news->title = $request->input('title');
+        $news->author = json_encode($authors);
+        $news->link = $request->input('link');
+        $news->description = $request->input('description');
+
+        // Handle file uploads
         if ($request->hasFile('poster')) {
             $news->poster = $request->file('poster')->store('news_images', 'public');
         }
         if ($request->hasFile('cover')) {
             $news->cover = $request->file('cover')->store('news_images', 'public');
         }
-        if ($request->has('link')) {
-            $news->link = $request->input('link');
-        }
-        if ($request->has('description')) {
-            $news->description = $request->input('description');
-        }
 
         $news->save();
 
-        return response()->json(['message' => 'News updated successfully', 'news' => $news]);
+        return response()->json([
+            'message' => 'News updated successfully', 
+            'news' => $news
+        ]);
     }
 
 
