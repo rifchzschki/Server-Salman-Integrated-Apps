@@ -124,8 +124,10 @@ class AuthController extends Controller
             'status' => 200,
             'message' => 'User profile fetched successfully',
             'data' => [
+                'id' => Auth::user()->id,
                 'first_name' => Auth::user()->first_name,
                 'last_name' => Auth::user()->last_name,
+                'role' => Auth::user()->role,
                 'email' => Auth::user()->email,
             ]
         ]);
