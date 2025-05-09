@@ -25,14 +25,14 @@ class EventsController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string',
             'location' => 'nullable|string|max:255',
             'start_time' => 'required|date',
             'end_time' => 'required|date|after_or_equal:start_time',
             'organizer' => 'nullable|string|max:255',
             'is_online' => 'required|string',
             'link' => 'nullable|url',
-            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'cover_image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
             'poster' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
