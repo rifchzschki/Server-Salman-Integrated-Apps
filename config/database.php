@@ -57,9 +57,27 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            'options' => array_merge(
+                extension_loaded('pdo_mysql') ? array_filter([
+                    PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                ]) : [],
+                [
+                    PDO::ATTR_TIMEOUT => 5, // Timeout dalam detik
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_PERSISTENT => false, // Non-aktifkan persistent connection
+                    PDO::ATTR_EMULATE_PREPARES => true, // Opsional: untuk kompatibilitas
+                    PDO::ATTR_STRINGIFY_FETCHES => false, // Opsional: pertahankan tipe data
+                ]
+            ),
+            'retry' => [
+                'attempts' => 3, // Jumlah percobaan ulang
+                'delay' => 1000, // Delay antar percobaan (ms)
+                'when' => [
+                    \Illuminate\Database\QueryException::class,
+                    \Illuminate\Database\Eloquent\ModelNotFoundException::class,
+                    \PDOException::class,
+                ],
+            ],
         ],
 
         'mariadb' => [
