@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://client-salman-integrated-apps.vercel.app'],
+    'allowed_origins' => [ env('CLIENT_URL') ],
 
     'allowed_origins_patterns' => [],
 

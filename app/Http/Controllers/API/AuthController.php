@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
+
+
 class AuthController extends Controller
 {
     public function register(Request $request)
@@ -99,8 +101,8 @@ class AuthController extends Controller
             );
 
             $token = $user->createToken('MyApp')->accessToken;
-
-            return redirect("http://localhost:3000/auth/callback?token={$token}&email={$user->email}");
+            $clientUrl = config('services.client.url');
+            return redirect(`{$clientUrl}/auth/callback?token={$token}&email={$user->email}`);
 
         } catch (\Exception $e) {
             return response()->json(['error' => 'Google login failed', 'details' => $e->getMessage()], 500);
