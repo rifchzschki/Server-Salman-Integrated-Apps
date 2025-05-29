@@ -102,7 +102,7 @@ class AuthController extends Controller
 
             $token = $user->createToken('MyApp')->accessToken;
             $clientUrl = config('services.client.url');
-            return redirect(`{$clientUrl}/auth/callback?token={$token}&email={$user->email}`);
+            return redirect($clientUrl . '/auth/callback?token=' . $token . '&email=' . $user->email);
 
         } catch (\Exception $e) {
             return response()->json(['error' => 'Google login failed', 'details' => $e->getMessage()], 500);
