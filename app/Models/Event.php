@@ -6,9 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Event extends Model
 {
-    protected $table = 'events';
-
-    // Field yang boleh diisi secara mass-assignment
     protected $fillable = [
         'title',
         'description',
@@ -20,12 +17,8 @@ class Event extends Model
         'link',
         'cover_image',
         'poster',
+        'cover_image_public_id',
+        'poster_publid_id'
     ];
 
-    // Tipe data untuk casting otomatis
-    protected $casts = [
-        'start_time' => 'datetime',
-        'end_time' => 'datetime',
-        'is_online' => 'boolean',
-    ];
 }

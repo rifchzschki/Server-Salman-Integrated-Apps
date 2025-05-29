@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('organizer')->nullable();
             $table->boolean('is_online')->default(false);
             $table->string('link')->nullable();
-            $table->string('cover_image')->nullable(); 
-            $table->string('poster')->nullable();      
+            $table->string('cover_image')->nullable();
+            $table->string('poster')->nullable();   
             $table->timestamps();
         });
 
