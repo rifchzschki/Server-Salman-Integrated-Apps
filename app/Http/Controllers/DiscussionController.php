@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Discussion;
+use App\Models\Reply;
 use Illuminate\Http\Request;
 
 class DiscussionController extends Controller
@@ -16,9 +17,11 @@ class DiscussionController extends Controller
         $formatted = $discussions->map(function ($discussion) {
             return [
                 'id' => $discussion->id,
+                'title' => $discussion->title,
                 'content' => $discussion->content,
                 'author' => trim(($discussion->user->first_name ?? '') . ' ' . ($discussion->user->last_name ?? '')) ?: 'Unknown',
                 'author_id' => $discussion->user->id ?? null,
+                'likes' => $discussion->likes,
                 'created_at' => $discussion->created_at
                     ? $discussion->created_at->timezone('Asia/Jakarta')->format('Y-m-d H:i:s')
                     : null,
@@ -47,10 +50,14 @@ class DiscussionController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate(['content' => 'required|string']);
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+        ]);
 
         $discussion = Discussion::create([
             'user_id' => $request->user()->id,
+            'title' => $request->title,
             'content' => $request->content,
         ]);
 
