@@ -8,7 +8,7 @@ use App\Http\Controllers\NewsController;
 use App\Http\Controllers\DiscussionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\QuotesController;
+use App\Http\Controllers\API\QuotesController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
