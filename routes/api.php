@@ -6,6 +6,7 @@ use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\DiscussionController;
+use App\Http\Controllers\ReplyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\QuotesController;
@@ -24,9 +25,13 @@ Route::middleware('auth:api')->post('/logout', [AuthController::class, 'logout']
 Route::middleware('auth:api')->get('/me', [App\Http\Controllers\API\AuthController::class, 'me']);
 Route::middleware('auth:api')->group(function () {
     Route::get('/discussions', [DiscussionController::class, 'index']);
-    Route::post('/discussions', [DiscussionController::class, 'store']);
-    Route::put('/discussions/{discussion}', [DiscussionController::class, 'update']);
-    Route::delete('/discussions/{discussion}', [DiscussionController::class, 'destroy']);
+    Route::post('/discussions/post', [DiscussionController::class, 'store']);
+    Route::put('/discussions/edit/{discussion}', [DiscussionController::class, 'update']);
+    Route::delete('/discussions/delete/{discussion}', [DiscussionController::class, 'destroy']);
+});
+Route::middleware('auth:api')->group(function () {
+    Route::get('/discussions/{discussion}', [ReplyController::class, 'index']);
+    Route::post('/discussions/{discussion}/reply', [ReplyController::class, 'store']);
 });
 Route::get('/auth/google', [AuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
