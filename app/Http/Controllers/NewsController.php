@@ -34,8 +34,8 @@ class NewsController extends Controller
         $rules = [
             'title' => 'required|string|max:255',
             'author' => 'required|array',
-            'poster' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'cover' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'poster' => 'nullable|image|mimes:jpeg,png,jpg|max:10240',
+            'cover' => 'required|image|mimes:jpeg,png,jpg|max:10240',
             'link' => 'required|string',
             'description' => 'nullable|string',
         ];
@@ -129,8 +129,8 @@ class NewsController extends Controller
         $rules = [
             'title' => 'nullable|string|max:255',
             'author' => 'nullable|array',
-            'poster' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'cover' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'poster' => 'nullable|image|mimes:jpeg,png,jpg|max:10240',
+            'cover' => 'nullable|image|mimes:jpeg,png,jpg|max:10240',
             'link' => 'nullable|string',
             'description' => 'nullable|string',
         ];

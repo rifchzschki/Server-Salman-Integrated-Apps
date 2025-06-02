@@ -35,8 +35,8 @@ class EventsController extends Controller
             'organizer' => 'nullable|string|max:255',
             'is_online' => 'required|string',
             'link' => 'nullable|string',
-            'cover_image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'poster' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'cover_image' => 'required|image|mimes:jpg,jpeg,png,webp|max:10240',
+            'poster' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
         ]);
 
         if ($validator->fails()) {
@@ -156,8 +156,8 @@ class EventsController extends Controller
             'organizer' => 'nullable|string|max:255',
             'is_online' => 'sometimes|required|boolean',
             'link' => 'nullable|string',
-            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'poster' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
+            'poster' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
         ]);
 
         if ($validator->fails()) {
